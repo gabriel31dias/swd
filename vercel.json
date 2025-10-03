@@ -1,0 +1,49 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "backend/src/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "backend/public/$1"
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "backend/src/server.js"
+    },
+    {
+      "src": "/payment-provider/(.*)",
+      "dest": "backend/src/server.js"
+    },
+    {
+      "src": "/webhooks/(.*)",
+      "dest": "backend/src/server.js"
+    },
+    {
+      "src": "/payments/(.*)",
+      "dest": "backend/src/server.js"
+    },
+    {
+      "src": "/health",
+      "dest": "backend/src/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/dist/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
