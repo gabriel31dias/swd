@@ -1,5 +1,3 @@
-import { Box, Toggle, Text, Input, Badge } from '@nimbus-ds/components';
-
 function PaymentMethodCard({
   title,
   description,
@@ -10,43 +8,81 @@ function PaymentMethodCard({
   recommended = false
 }) {
   return (
-    <Box
-      marginBottom="3"
-      padding="4"
-      backgroundColor={enabled ? 'primary-surface' : 'neutral-surface'}
-      borderRadius="base"
-      border="1px solid"
-      borderColor={enabled ? 'primary-interactive' : 'neutral-interactive'}
-      transition="all 0.2s"
-    >
-      <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-        <Box display="flex" gap="3" alignItems="center" flex="1">
-          <Box fontSize="h2">{icon}</Box>
-          <Box flex="1">
-            <Box display="flex" alignItems="center" gap="2">
-              <Text fontWeight="medium">{title}</Text>
+    <div style={{
+      marginBottom: '0.75rem',
+      padding: '1rem',
+      backgroundColor: enabled ? '#ebf8ff' : '#f7fafc',
+      borderRadius: '6px',
+      border: '1px solid',
+      borderColor: enabled ? '#3182ce' : '#cbd5e0',
+      transition: 'all 0.2s'
+    }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start'
+      }}>
+        <div style={{
+          display: 'flex',
+          gap: '0.75rem',
+          alignItems: 'center',
+          flex: '1'
+        }}>
+          <div style={{ fontSize: '1.5rem' }}>{icon}</div>
+          <div style={{ flex: '1' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              <span style={{ fontWeight: '500' }}>{title}</span>
               {recommended && (
-                <Badge appearance="primary">Recomendado</Badge>
+                <span style={{
+                  fontSize: '0.75rem',
+                  padding: '0.125rem 0.5rem',
+                  backgroundColor: '#3182ce',
+                  color: 'white',
+                  borderRadius: '4px'
+                }}>
+                  Recomendado
+                </span>
               )}
-            </Box>
-            <Text fontSize="caption" color="neutral-textLow">
+            </div>
+            <p style={{
+              fontSize: '0.875rem',
+              color: '#718096',
+              margin: 0,
+              marginTop: '0.25rem'
+            }}>
               {description}
-            </Text>
-          </Box>
-        </Box>
-        <Toggle
-          checked={enabled}
-          onChange={onToggle}
-          aria-label={`Ativar ${title}`}
-        />
-      </Box>
+            </p>
+          </div>
+        </div>
+        <label style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={enabled}
+            onChange={onToggle}
+            aria-label={`Ativar ${title}`}
+            style={{
+              width: '2.5rem',
+              height: '1.5rem',
+              cursor: 'pointer'
+            }}
+          />
+        </label>
+      </div>
 
       {enabled && children && (
-        <Box marginTop="3" paddingTop="3" borderTop="1px solid" borderColor="neutral-interactive">
+        <div style={{
+          marginTop: '0.75rem',
+          paddingTop: '0.75rem',
+          borderTop: '1px solid #cbd5e0'
+        }}>
           {children}
-        </Box>
+        </div>
       )}
-    </Box>
+    </div>
   );
 }
 

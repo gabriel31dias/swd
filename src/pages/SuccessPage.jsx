@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { Box, Card, Title, Text, Button, Icon } from '@nimbus-ds/components';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 function SuccessPage() {
@@ -17,48 +16,62 @@ function SuccessPage() {
   }, [storeId, navigate]);
 
   return (
-    <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      padding="4"
-      backgroundColor="neutral-background"
-    >
-      <Card maxWidth="500px">
-        <Box padding="6" textAlign="center">
-          <Box marginBottom="4">
-            <div style={{ fontSize: '64px', color: '#48bb78' }}>✓</div>
-          </Box>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      padding: '1rem',
+      backgroundColor: '#f7fafc'
+    }}>
+      <div style={{
+        maxWidth: '500px',
+        width: '100%',
+        backgroundColor: 'white',
+        borderRadius: '8px',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        padding: '2rem',
+        textAlign: 'center'
+      }}>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ fontSize: '64px', color: '#48bb78' }}>✓</div>
+        </div>
 
-          <Title as="h1" marginBottom="2">
-            Instalação Concluída!
-          </Title>
+        <h1 style={{ fontSize: '1.875rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+          Instalação Concluída!
+        </h1>
 
-          <Text fontSize="base" marginBottom="4" color="neutral-textLow">
-            O gateway de pagamento Payco foi instalado com sucesso na sua loja.
-          </Text>
+        <p style={{ fontSize: '1rem', marginBottom: '1.5rem', color: '#718096' }}>
+          O gateway de pagamento Payco foi instalado com sucesso na sua loja.
+        </p>
 
-          <Box
-            padding="3"
-            backgroundColor="success-surface"
-            borderRadius="base"
-            marginBottom="4"
-          >
-            <Text fontSize="caption">
-              Você será redirecionado para a página de configuração em 5 segundos...
-            </Text>
-          </Box>
+        <div style={{
+          padding: '0.75rem',
+          backgroundColor: '#f0fff4',
+          borderRadius: '6px',
+          marginBottom: '1.5rem'
+        }}>
+          <p style={{ fontSize: '0.875rem' }}>
+            Você será redirecionado para a página de configuração em 5 segundos...
+          </p>
+        </div>
 
-          <Button
-            onClick={() => navigate(`/config?store_id=${storeId}`)}
-            appearance="primary"
-          >
-            Ir para Configurações
-          </Button>
-        </Box>
-      </Card>
-    </Box>
+        <button
+          onClick={() => navigate(`/config?store_id=${storeId}`)}
+          style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: '#3182ce',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontWeight: '500'
+          }}
+        >
+          Ir para Configurações
+        </button>
+      </div>
+    </div>
   );
 }
 

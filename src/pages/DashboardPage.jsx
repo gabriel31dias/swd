@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Box, Title, Text, Layout } from '@nimbus-ds/components';
 import { useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
 import StatsCard from '../components/StatsCard';
@@ -50,29 +49,29 @@ function DashboardPage() {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <Text>Carregando dashboard...</Text>
-      </Box>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <p>Carregando dashboard...</p>
+      </div>
     );
   }
 
   return (
-    <Layout>
+    <div>
       <Header />
-      <Box padding="4" maxWidth="1200px" margin="0 auto">
-        <Box marginBottom="4">
-          <Title as="h1">Dashboard</Title>
-          <Text color="neutral-textLow">
+      <div style={{ padding: '1rem', maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', margin: 0 }}>Dashboard</h1>
+          <p style={{ color: '#718096', margin: 0, marginTop: '0.25rem' }}>
             Visão geral das transações do gateway Payco
-          </Text>
-        </Box>
+          </p>
+        </div>
 
-        <Box
-          display="grid"
-          gridTemplateColumns="repeat(auto-fit, minmax(250px, 1fr))"
-          gap="4"
-          marginBottom="6"
-        >
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '1rem',
+          marginBottom: '1.5rem'
+        }}>
           <StatsCard
             title="Total de Transações"
             value={stats.totalTransactions.toLocaleString('pt-BR')}
@@ -97,23 +96,23 @@ function DashboardPage() {
             icon="✓"
             color="success"
           />
-        </Box>
+        </div>
 
-        <Box
-          padding="4"
-          backgroundColor="primary-surface"
-          borderRadius="base"
-          textAlign="center"
-        >
-          <Title as="h3" marginBottom="2">
+        <div style={{
+          padding: '1rem',
+          backgroundColor: '#ebf8ff',
+          borderRadius: '6px',
+          textAlign: 'center'
+        }}>
+          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>
             Painel completo em desenvolvimento
-          </Title>
-          <Text color="neutral-textLow">
+          </h3>
+          <p style={{ color: '#718096', margin: 0 }}>
             Em breve você terá acesso a relatórios detalhados, gráficos de transações e muito mais.
-          </Text>
-        </Box>
-      </Box>
-    </Layout>
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 

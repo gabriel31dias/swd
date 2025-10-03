@@ -1,4 +1,3 @@
-import { Box, Text } from '@nimbus-ds/components';
 import { Link, useLocation } from 'react-router-dom';
 
 function Sidebar() {
@@ -17,51 +16,48 @@ function Sidebar() {
   };
 
   return (
-    <Box
-      width="240px"
-      backgroundColor="neutral-surface"
-      borderRight="1px solid"
-      borderColor="neutral-interactive"
-      minHeight="100vh"
-      padding="4"
-    >
-      <Box marginBottom="6">
-        <Text fontSize="caption" color="neutral-textLow" fontWeight="medium">
+    <div style={{
+      width: '240px',
+      backgroundColor: '#f7fafc',
+      borderRight: '1px solid #cbd5e0',
+      minHeight: '100vh',
+      padding: '1rem'
+    }}>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <p style={{ fontSize: '0.75rem', color: '#718096', fontWeight: '500', margin: 0 }}>
           MENU
-        </Text>
-      </Box>
+        </p>
+      </div>
 
-      <Box display="flex" flexDirection="column" gap="2">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {menuItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}
             style={{ textDecoration: 'none' }}
           >
-            <Box
-              padding="3"
-              borderRadius="base"
-              backgroundColor={isActive(item.path) ? 'primary-surface' : 'transparent'}
-              display="flex"
-              alignItems="center"
-              gap="2"
-              style={{
-                cursor: 'pointer',
-                transition: 'background-color 0.2s'
-              }}
-            >
+            <div style={{
+              padding: '0.75rem',
+              borderRadius: '6px',
+              backgroundColor: isActive(item.path) ? '#ebf8ff' : 'transparent',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
+            }}>
               <span style={{ fontSize: '20px' }}>{item.icon}</span>
-              <Text
-                fontWeight={isActive(item.path) ? 'medium' : 'regular'}
-                color={isActive(item.path) ? 'primary-textHigh' : 'neutral-textHigh'}
-              >
+              <span style={{
+                fontWeight: isActive(item.path) ? '500' : '400',
+                color: isActive(item.path) ? '#2c5282' : '#2d3748'
+              }}>
                 {item.label}
-              </Text>
-            </Box>
+              </span>
+            </div>
           </Link>
         ))}
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
