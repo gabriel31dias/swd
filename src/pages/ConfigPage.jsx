@@ -1,6 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import {
+  Box,
+  Card,
+  Title,
+  Text,
+  Input,
+  Button,
+  Alert,
+  Toggle,
+  Select,
+  Checkbox,
+  Label
+} from '@nimbus-ds/components';
+import { initNexo, showToast } from '../services/nexoClient';
 
 function ConfigPage() {
   const [loading, setLoading] = useState(true);
@@ -31,6 +45,11 @@ function ConfigPage() {
   const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
+    // Inicializar Nexo
+    initNexo().catch(err => {
+      console.error('Erro ao inicializar Nexo:', err);
+    });
+
     loadConfig(storeId);
   }, [storeId]);
 
@@ -66,11 +85,15 @@ function ConfigPage() {
         type: 'success',
         text: 'Configurações salvas com sucesso! Seu gateway está ativo.'
       });
+
+      // Mostrar toast usando Nexo
+      showToast('Configurações salvas com sucesso!', 'success');
     } catch (error) {
       setMessage({
         type: 'danger',
         text: 'Erro ao salvar configurações. Tente novamente.'
       });
+      showToast('Erro ao salvar configurações', 'error');
     } finally {
       setSaving(false);
     }
@@ -89,281 +112,240 @@ function ConfigPage() {
     });
   };
 
+  const installmentOptions = [
+    { label: '1x sem juros', value: '1' },
+    { label: '2x sem juros', value: '2' },
+    { label: '3x sem juros', value: '3' },
+    { label: '6x sem juros', value: '6' },
+    { label: '12x sem juros', value: '12' }
+  ];
+
   if (loading) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <p>Carregando configurações...</p>
-      </div>
+      <Box padding="4" display="flex" justifyContent="center" alignItems="center">
+        <Text>Carregando configurações...</Text>
+      </Box>
     );
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '900px', margin: '0 auto', fontFamily: 'system-ui, sans-serif' }}>
-      <div style={{ marginBottom: '30px' }}>
-        <h1 style={{ margin: '0 0 10px 0', fontSize: '28px' }}>Configuração do Gateway Payco</h1>
-        <p style={{ margin: 0, color: '#666' }}>Configure os métodos de pagamento disponíveis na sua loja</p>
-      </div>
+    <Box padding="4" maxWidth="900px" margin="0 auto">
+      <Box marginBottom="6">
+        <Title as="h1">Configuração do Gateway Payco</Title>
+        <Text color="neutral-textLow">
+          Configure os métodos de pagamento disponíveis na sua loja
+        </Text>
+      </Box>
 
       {message.text && (
-        <div style={{
-          padding: '15px',
-          marginBottom: '20px',
-          borderRadius: '8px',
-          backgroundColor: message.type === 'success' ? '#d4edda' : message.type === 'warning' ? '#fff3cd' : '#f8d7da',
-          color: message.type === 'success' ? '#155724' : message.type === 'warning' ? '#856404' : '#721c24',
-          border: `1px solid ${message.type === 'success' ? '#c3e6cb' : message.type === 'warning' ? '#ffeeba' : '#f5c6cb'}`
-        }}>
-          {message.text}
-        </div>
+        <Box marginBottom="4">
+          <Alert appearance={message.type} title={message.text} />
+        </Box>
       )}
 
-      <div style={{ padding: '20px', borderRadius: '8px', backgroundColor: 'white', border: '1px solid #dee2e6', marginBottom: '20px' }}>
-        <h3 style={{ margin: '0 0 20px 0' }}>Credenciais da API</h3>
-
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '14px' }}>
-            Client ID
-          </label>
-          <input
-            type="text"
-            value={config.clientId}
-            onChange={(e) => setConfig({ ...config, clientId: e.target.value })}
-            placeholder="Digite seu Client ID"
-            style={{
-              width: '100%',
-              padding: '10px 12px',
-              borderRadius: '4px',
-              border: '1px solid #cbd5e0',
-              fontSize: '14px',
-              fontFamily: 'monospace'
-            }}
-          />
-        </div>
-
-        <div style={{ marginBottom: '10px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '14px' }}>
-            Client Secret
-          </label>
-          <div style={{ position: 'relative' }}>
-            <input
-              type={showSecret ? 'text' : 'password'}
-              value={config.clientSecret}
-              onChange={(e) => setConfig({ ...config, clientSecret: e.target.value })}
-              placeholder="Digite seu Client Secret"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                paddingRight: '45px',
-                borderRadius: '4px',
-                border: '1px solid #cbd5e0',
-                fontSize: '14px',
-                fontFamily: 'monospace'
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowSecret(!showSecret)}
-              style={{
-                position: 'absolute',
-                right: '8px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                border: 'none',
-                background: 'transparent',
-                cursor: 'pointer',
-                fontSize: '18px',
-                padding: '4px 8px'
-              }}
-            >
-              {showSecret ? '🙈' : '👁️'}
-            </button>
-          </div>
-          <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#666' }}>
-            Suas credenciais são armazenadas de forma segura e criptografada
-          </p>
-        </div>
-      </div>
-
-      <div style={{
-        padding: '20px',
-        marginBottom: '20px',
-        borderRadius: '8px',
-        backgroundColor: config.enabled ? '#d4edda' : '#f8f9fa',
-        border: '1px solid #dee2e6',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <div>
-          <h3 style={{ margin: '0 0 8px 0' }}>Status do Gateway</h3>
-          <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>
-            {config.enabled
-              ? '✓ Gateway ativo e processando pagamentos'
-              : '○ Gateway desativado - ative para começar a receber pagamentos'}
-          </p>
-        </div>
-        <button
-          onClick={() => setConfig({ ...config, enabled: !config.enabled })}
-          style={{
-            padding: '10px 20px',
-            borderRadius: '6px',
-            border: 'none',
-            backgroundColor: config.enabled ? '#dc3545' : '#007bff',
-            color: 'white',
-            cursor: 'pointer',
-            fontWeight: '500'
-          }}
-        >
-          {config.enabled ? 'Desativar' : 'Ativar Gateway'}
-        </button>
-      </div>
-
-      <div style={{ padding: '20px', borderRadius: '8px', backgroundColor: 'white', border: '1px solid #dee2e6' }}>
-        <h3 style={{ margin: '0 0 20px 0' }}>Métodos de Pagamento</h3>
-
-        {/* Cartão de Crédito */}
-        <div style={{ padding: '20px', marginBottom: '15px', border: '1px solid #dee2e6', borderRadius: '8px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <div>
-              <h4 style={{ margin: '0 0 5px 0' }}>💳 Cartão de Crédito</h4>
-              <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>Aceite pagamentos parcelados em até 12x</p>
-            </div>
-            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={config.paymentMethods.creditCard.enabled}
-                onChange={(e) => updatePaymentMethod('creditCard', 'enabled', e.target.checked)}
-                style={{ marginRight: '8px', width: '20px', height: '20px', cursor: 'pointer' }}
+      {/* Credenciais da API */}
+      <Card>
+        <Card.Header>
+          <Title as="h3">Credenciais da API</Title>
+        </Card.Header>
+        <Card.Body>
+          <Box display="flex" flexDirection="column" gap="4">
+            <Box>
+              <Label>Client ID</Label>
+              <Input
+                type="text"
+                value={config.clientId}
+                onChange={(e) => setConfig({ ...config, clientId: e.target.value })}
+                placeholder="Digite seu Client ID"
               />
-              <span>Ativo</span>
-            </label>
-          </div>
-          {config.paymentMethods.creditCard.enabled && (
-            <div style={{ marginTop: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '14px' }}>
-                Número máximo de parcelas
-              </label>
-              <select
-                value={config.paymentMethods.creditCard.installments}
-                onChange={(e) => updatePaymentMethod('creditCard', 'installments', parseInt(e.target.value))}
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: '4px',
-                  border: '1px solid #cbd5e0',
-                  fontSize: '14px'
-                }}
+            </Box>
+
+            <Box>
+              <Label>Client Secret</Label>
+              <Box display="flex" gap="2">
+                <Input
+                  type={showSecret ? 'text' : 'password'}
+                  value={config.clientSecret}
+                  onChange={(e) => setConfig({ ...config, clientSecret: e.target.value })}
+                  placeholder="Digite seu Client Secret"
+                />
+                <Button
+                  appearance="default"
+                  onClick={() => setShowSecret(!showSecret)}
+                >
+                  {showSecret ? '🙈' : '👁️'}
+                </Button>
+              </Box>
+              <Text fontSize="caption" color="neutral-textLow">
+                Suas credenciais são armazenadas de forma segura e criptografada
+              </Text>
+            </Box>
+          </Box>
+        </Card.Body>
+      </Card>
+
+      {/* Status do Gateway */}
+      <Box marginTop="4">
+        <Card>
+          <Card.Body>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Box>
+                <Title as="h3">Status do Gateway</Title>
+                <Text color="neutral-textLow">
+                  {config.enabled
+                    ? '✓ Gateway ativo e processando pagamentos'
+                    : '○ Gateway desativado - ative para começar a receber pagamentos'}
+                </Text>
+              </Box>
+              <Toggle
+                checked={config.enabled}
+                onChange={(e) => setConfig({ ...config, enabled: e.target.checked })}
+                label={config.enabled ? 'Ativo' : 'Inativo'}
+              />
+            </Box>
+          </Card.Body>
+        </Card>
+      </Box>
+
+      {/* Métodos de Pagamento */}
+      <Box marginTop="4">
+        <Card>
+          <Card.Header>
+            <Title as="h3">Métodos de Pagamento</Title>
+          </Card.Header>
+          <Card.Body>
+            <Box display="flex" flexDirection="column" gap="4">
+
+              {/* Cartão de Crédito */}
+              <Card>
+                <Card.Body>
+                  <Box display="flex" flexDirection="column" gap="3">
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                      <Box>
+                        <Title as="h4">💳 Cartão de Crédito</Title>
+                        <Text fontSize="caption" color="neutral-textLow">
+                          Aceite pagamentos parcelados em até 12x
+                        </Text>
+                      </Box>
+                      <Checkbox
+                        checked={config.paymentMethods.creditCard.enabled}
+                        onChange={(e) => updatePaymentMethod('creditCard', 'enabled', e.target.checked)}
+                        label="Ativo"
+                      />
+                    </Box>
+
+                    {config.paymentMethods.creditCard.enabled && (
+                      <Box>
+                        <Label>Número máximo de parcelas</Label>
+                        <Select
+                          value={String(config.paymentMethods.creditCard.installments)}
+                          onChange={(e) => updatePaymentMethod('creditCard', 'installments', parseInt(e.target.value))}
+                          options={installmentOptions}
+                        />
+                      </Box>
+                    )}
+                  </Box>
+                </Card.Body>
+              </Card>
+
+              {/* PIX */}
+              <Card>
+                <Card.Body>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Box>
+                      <Title as="h4">📱 PIX</Title>
+                      <Text fontSize="caption" color="neutral-textLow">
+                        Pagamento instantâneo e aprovação imediata
+                      </Text>
+                    </Box>
+                    <Checkbox
+                      checked={config.paymentMethods.pix.enabled}
+                      onChange={(e) => updatePaymentMethod('pix', 'enabled', e.target.checked)}
+                      label="Ativo"
+                    />
+                  </Box>
+                </Card.Body>
+              </Card>
+
+              {/* Cartão de Débito */}
+              <Card>
+                <Card.Body>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Box>
+                      <Title as="h4">💳 Cartão de Débito</Title>
+                      <Text fontSize="caption" color="neutral-textLow">
+                        Pagamento à vista com aprovação instantânea
+                      </Text>
+                    </Box>
+                    <Checkbox
+                      checked={config.paymentMethods.debitCard.enabled}
+                      onChange={(e) => updatePaymentMethod('debitCard', 'enabled', e.target.checked)}
+                      label="Ativo"
+                    />
+                  </Box>
+                </Card.Body>
+              </Card>
+
+              {/* Boleto */}
+              <Card>
+                <Card.Body>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Box>
+                      <Title as="h4">🧾 Boleto Bancário</Title>
+                      <Text fontSize="caption" color="neutral-textLow">
+                        Vencimento em 3 dias úteis
+                      </Text>
+                    </Box>
+                    <Checkbox
+                      checked={config.paymentMethods.boleto.enabled}
+                      onChange={(e) => updatePaymentMethod('boleto', 'enabled', e.target.checked)}
+                      label="Ativo"
+                    />
+                  </Box>
+                </Card.Body>
+              </Card>
+
+            </Box>
+          </Card.Body>
+          <Card.Footer>
+            <Box display="flex" justifyContent="flex-end" gap="2">
+              <Button
+                appearance="default"
+                onClick={() => window.location.reload()}
               >
-                <option value="1">1x sem juros</option>
-                <option value="2">2x sem juros</option>
-                <option value="3">3x sem juros</option>
-                <option value="6">6x sem juros</option>
-                <option value="12">12x sem juros</option>
-              </select>
-            </div>
-          )}
-        </div>
+                Cancelar
+              </Button>
+              <Button
+                appearance="primary"
+                onClick={handleSave}
+                disabled={saving}
+              >
+                {saving ? 'Salvando...' : 'Salvar Configurações'}
+              </Button>
+            </Box>
+          </Card.Footer>
+        </Card>
+      </Box>
 
-        {/* PIX */}
-        <div style={{ padding: '20px', marginBottom: '15px', border: '1px solid #dee2e6', borderRadius: '8px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h4 style={{ margin: '0 0 5px 0' }}>📱 PIX</h4>
-              <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>Pagamento instantâneo e aprovação imediata</p>
-            </div>
-            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={config.paymentMethods.pix.enabled}
-                onChange={(e) => updatePaymentMethod('pix', 'enabled', e.target.checked)}
-                style={{ marginRight: '8px', width: '20px', height: '20px', cursor: 'pointer' }}
-              />
-              <span>Ativo</span>
-            </label>
-          </div>
-        </div>
-
-        {/* Cartão de Débito */}
-        <div style={{ padding: '20px', marginBottom: '15px', border: '1px solid #dee2e6', borderRadius: '8px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h4 style={{ margin: '0 0 5px 0' }}>💳 Cartão de Débito</h4>
-              <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>Pagamento à vista com aprovação instantânea</p>
-            </div>
-            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={config.paymentMethods.debitCard.enabled}
-                onChange={(e) => updatePaymentMethod('debitCard', 'enabled', e.target.checked)}
-                style={{ marginRight: '8px', width: '20px', height: '20px', cursor: 'pointer' }}
-              />
-              <span>Ativo</span>
-            </label>
-          </div>
-        </div>
-
-        {/* Boleto */}
-        <div style={{ padding: '20px', marginBottom: '15px', border: '1px solid #dee2e6', borderRadius: '8px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <h4 style={{ margin: '0 0 5px 0' }}>🧾 Boleto Bancário</h4>
-              <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>Vencimento em 3 dias úteis</p>
-            </div>
-            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={config.paymentMethods.boleto.enabled}
-                onChange={(e) => updatePaymentMethod('boleto', 'enabled', e.target.checked)}
-                style={{ marginRight: '8px', width: '20px', height: '20px', cursor: 'pointer' }}
-              />
-              <span>Ativo</span>
-            </label>
-          </div>
-        </div>
-
-        <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-          <button
-            onClick={() => window.location.reload()}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '6px',
-              border: '1px solid #dee2e6',
-              backgroundColor: 'white',
-              cursor: 'pointer',
-              fontWeight: '500'
-            }}
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '6px',
-              border: 'none',
-              backgroundColor: '#007bff',
-              color: 'white',
-              cursor: saving ? 'not-allowed' : 'pointer',
-              fontWeight: '500',
-              opacity: saving ? 0.6 : 1
-            }}
-          >
-            {saving ? 'Salvando...' : 'Salvar Configurações'}
-          </button>
-        </div>
-      </div>
-
-      <div style={{ marginTop: '20px', padding: '20px', borderRadius: '8px', backgroundColor: 'white', border: '1px solid #dee2e6' }}>
-        <h3 style={{ margin: '0 0 15px 0' }}>Informações</h3>
-        <p style={{ margin: '0 0 10px 0' }}>
-          <strong>ID da Loja:</strong> {storeId}
-        </p>
-        <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>
-          Para suporte, acesse: payco.com.br/suporte
-        </p>
-      </div>
-    </div>
+      {/* Informações */}
+      <Box marginTop="4">
+        <Card>
+          <Card.Header>
+            <Title as="h3">Informações</Title>
+          </Card.Header>
+          <Card.Body>
+            <Box display="flex" flexDirection="column" gap="2">
+              <Text>
+                <strong>ID da Loja:</strong> {storeId}
+              </Text>
+              <Text fontSize="caption" color="neutral-textLow">
+                Para suporte, acesse: payco.com.br/suporte
+              </Text>
+            </Box>
+          </Card.Body>
+        </Card>
+      </Box>
+    </Box>
   );
 }
 

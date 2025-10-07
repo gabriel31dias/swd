@@ -10,9 +10,13 @@
     "vercel-build": "vite build"
   },
   "dependencies": {
+    "@nimbus-ds/components": "^5.30.0",
+    "@nimbus-ds/icons": "^1.13.1",
+    "@nimbus-ds/styles": "^9.33.0",
+    "@tiendanube/nexo": "^1.2.1",
+    "axios": "^1.6.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "axios": "^1.6.2",
     "react-router-dom": "^6.20.1"
   },
   "devDependencies": {
