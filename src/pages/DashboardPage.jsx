@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '../components/Header';
-import StatsCard from '../components/StatsCard';
 import axios from 'axios';
 
 function DashboardPage() {
@@ -85,30 +84,7 @@ function DashboardPage() {
           gap: '1rem',
           marginBottom: '1.5rem'
         }}>
-          <StatsCard
-            title="Total de Transações"
-            value={stats.totalTransactions.toLocaleString('pt-BR')}
-            icon="📊"
-            color="primary"
-          />
-          <StatsCard
-            title="Volume Total"
-            value={formatCurrency(stats.totalAmount)}
-            icon="💰"
-            color="success"
-          />
-          <StatsCard
-            title="Pagamentos Pendentes"
-            value={stats.pendingPayments}
-            icon="⏳"
-            color="warning"
-          />
-          <StatsCard
-            title="Taxa de Sucesso"
-            value={`${stats.successRate}%`}
-            icon="✓"
-            color="success"
-          />
+         
         </div>
 
         <div style={{

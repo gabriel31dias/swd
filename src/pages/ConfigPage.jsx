@@ -9,6 +9,8 @@ function ConfigPage() {
   const storeId = searchParams.get('store_id') || '123456';
   const [config, setConfig] = useState({
     enabled: false,
+    clientId: '',
+    clientSecret: '',
     paymentMethods: {
       creditCard: {
         enabled: true,
@@ -25,6 +27,7 @@ function ConfigPage() {
       }
     }
   });
+  const [showSecret, setShowSecret] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
@@ -37,6 +40,8 @@ function ConfigPage() {
       if (response.data.settings) {
         setConfig({
           enabled: response.data.settings.enabled || false,
+          clientId: response.data.settings.clientId || '',
+          clientSecret: response.data.settings.clientSecret || '',
           paymentMethods: response.data.settings.paymentMethods || config.paymentMethods
         });
       }
@@ -111,6 +116,73 @@ function ConfigPage() {
           {message.text}
         </div>
       )}
+
+      <div style={{ padding: '20px', borderRadius: '8px', backgroundColor: 'white', border: '1px solid #dee2e6', marginBottom: '20px' }}>
+        <h3 style={{ margin: '0 0 20px 0' }}>Credenciais da API</h3>
+
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '14px' }}>
+            Client ID
+          </label>
+          <input
+            type="text"
+            value={config.clientId}
+            onChange={(e) => setConfig({ ...config, clientId: e.target.value })}
+            placeholder="Digite seu Client ID"
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              borderRadius: '4px',
+              border: '1px solid #cbd5e0',
+              fontSize: '14px',
+              fontFamily: 'monospace'
+            }}
+          />
+        </div>
+
+        <div style={{ marginBottom: '10px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '14px' }}>
+            Client Secret
+          </label>
+          <div style={{ position: 'relative' }}>
+            <input
+              type={showSecret ? 'text' : 'password'}
+              value={config.clientSecret}
+              onChange={(e) => setConfig({ ...config, clientSecret: e.target.value })}
+              placeholder="Digite seu Client Secret"
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                paddingRight: '45px',
+                borderRadius: '4px',
+                border: '1px solid #cbd5e0',
+                fontSize: '14px',
+                fontFamily: 'monospace'
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowSecret(!showSecret)}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                fontSize: '18px',
+                padding: '4px 8px'
+              }}
+            >
+              {showSecret ? '🙈' : '👁️'}
+            </button>
+          </div>
+          <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#666' }}>
+            Suas credenciais são armazenadas de forma segura e criptografada
+          </p>
+        </div>
+      </div>
 
       <div style={{
         padding: '20px',
