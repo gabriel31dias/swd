@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import axios from 'axios';
 
 function SuccessPage() {
   const navigate = useNavigate();
@@ -7,6 +8,11 @@ function SuccessPage() {
   const storeId = searchParams.get('store_id');
 
   useEffect(() => {
+    const code = searchParams.get('code');
+    if (code) {
+      handleInstallCode(code);
+    }
+
     // Redireciona automaticamente após 5 segundos
     const timer = setTimeout(() => {
       navigate(`/config?store_id=${storeId}`);
@@ -14,6 +20,15 @@ function SuccessPage() {
 
     return () => clearTimeout(timer);
   }, [storeId, navigate]);
+
+  const handleInstallCode = async (code) => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/auth/install?code=${code}`);
+      console.log('Install response:', response.data);
+    } catch (error) {
+      console.error('Erro ao processar código de instalação:', error);
+    }
+  };
 
   return (
     <div style={{
