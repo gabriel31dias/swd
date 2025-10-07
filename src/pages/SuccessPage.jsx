@@ -14,9 +14,7 @@ function SuccessPage() {
     }
 
     // Redireciona automaticamente após 5 segundos
-    const timer = setTimeout(() => {
-      navigate(`/config?store_id=${storeId}`);
-    }, 5000);
+   
 
     return () => clearTimeout(timer);
   }, [storeId, navigate]);
