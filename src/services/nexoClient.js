@@ -6,7 +6,7 @@ let isConnected = false;
 export const initNexo = async () => {
   try {
     nexoClient = nexo.create({
-      clientId: 'payco-payment-gateway',
+      clientId: '21916',
       log: true
     });
 
