@@ -4,6 +4,7 @@ import DashboardPage from './pages/DashboardPage';
 import TransactionsPage from './pages/TransactionsPage';
 import SuccessPage from './pages/SuccessPage';
 import ErrorPage from './pages/ErrorPage';
+import TestPage from './pages/TestPage';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Route path="/transactions" element={<TransactionsPage />} />
       <Route path="/success" element={<SuccessPage />} />
       <Route path="/error" element={<ErrorPage />} />
+      <Route path="/test" element={<TestPage />} />
     </Routes>
   );
 }
