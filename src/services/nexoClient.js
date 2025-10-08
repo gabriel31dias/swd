@@ -1,5 +1,4 @@
-import nexo from '@tiendanube/nexo';
-import { connect, iAmReady } from '@tiendanube/nexo/helpers';
+import nexo, { connect, iAmReady } from '@tiendanube/nexo';
 
 let nexoClient = null;
 let isConnected = false;
