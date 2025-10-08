@@ -82,13 +82,27 @@ function ConfigPage() {
           paycoClientId: data.gatewayConfig.paycoClientId || '',
           paymentMethods: data.gatewayConfig.paymentMethods || []
         });
+      } else {
+        // Configurações ainda não existem, mas não é um erro
+        setMessage({
+          type: 'info',
+          text: 'Configure suas credenciais e salve para ativar o gateway.'
+        });
       }
     } catch (error) {
       console.error('Erro ao carregar configurações:', error);
-      setMessage({
-        type: 'warning',
-        text: 'Configurações padrão carregadas. Configure e salve para ativar o gateway.'
-      });
+      // Apenas mostra erro se for um erro real (não 404)
+      if (error.response && error.response.status !== 404) {
+        setMessage({
+          type: 'danger',
+          text: 'Erro ao carregar configurações. Tente recarregar a página.'
+        });
+      } else {
+        setMessage({
+          type: 'info',
+          text: 'Configure suas credenciais e salve para ativar o gateway.'
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -105,15 +119,17 @@ function ConfigPage() {
 
       setMessage({
         type: 'success',
-        text: 'Configurações salvas com sucesso! Seu gateway está ativo.'
+        text: 'Configurações salvas com sucesso!'
       });
 
       // Mostrar toast usando Nexo
       showToast('Configurações salvas com sucesso!', 'success');
     } catch (error) {
+      console.error('Erro ao salvar:', error);
+      const errorMsg = error.response?.data?.message || 'Erro ao salvar configurações. Tente novamente.';
       setMessage({
         type: 'danger',
-        text: 'Erro ao salvar configurações. Tente novamente.'
+        text: errorMsg
       });
       showToast('Erro ao salvar configurações', 'error');
     } finally {
