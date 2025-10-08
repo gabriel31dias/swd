@@ -26,7 +26,7 @@ export const getStoreConfig = async (storeId) => {
 export const updateStoreConfig = async (storeId, config) => {
   try {
     const response = await axios.post(
-      `https://swd-olive.vercel.app/api/payment-provider/${storeId}/settings`,
+      `${API_BASE_URL}/store/${storeId}/config`,
       {
         paycoApiKey: config.gatewayConfig.paycoApiKey,
         paycoClientId: config.gatewayConfig.paycoClientId,
