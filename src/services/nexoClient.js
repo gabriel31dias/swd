@@ -1,4 +1,4 @@
-import nexo, { connect, iAmReady } from '@tiendanube/nexo';
+import nexo, { connect, iAmReady, getStoreInfo as nexoGetStoreInfo } from '@tiendanube/nexo';
 
 let nexoClient = null;
 let isConnected = false;
@@ -64,7 +64,7 @@ export const getStoreInfo = async () => {
   }
 
   try {
-    const storeInfo = await nexoClient.getStoreInfo();
+    const storeInfo = await nexoGetStoreInfo(nexoClient);
     return storeInfo;
   } catch (error) {
     console.error('Erro ao obter informações da loja:', error);
