@@ -71,3 +71,18 @@ export const getStoreInfo = async () => {
     throw error;
   }
 };
+
+// Função para obter o storeId do ACTION_AUTH_SESSION_TOKEN
+export const getStoreId = async () => {
+  if (!nexoClient) {
+    throw new Error('Nexo client não está inicializado');
+  }
+
+  try {
+    const sessionToken = await nexoClient.getAction('ACTION_AUTH_SESSION_TOKEN');
+    return sessionToken?.storeId || null;
+  } catch (error) {
+    console.error('Erro ao obter storeId:', error);
+    throw error;
+  }
+};

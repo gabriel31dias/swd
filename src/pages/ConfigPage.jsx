@@ -14,54 +14,73 @@ import {
   Checkbox,
   Label
 } from '@nimbus-ds/components';
-import { initNexo, showToast } from '../services/nexoClient';
+import { initNexo, showToast, getStoreId } from '../services/nexoClient';
+import { getStoreConfig, updateStoreConfig } from '../services/storeApi';
 
 function ConfigPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [searchParams] = useSearchParams();
-  const storeId = searchParams.get('store_id') || '123456';
+  const [storeId, setStoreId] = useState(searchParams.get('store_id') || null);
+  const [storeInfo, setStoreInfo] = useState(null);
   const [config, setConfig] = useState({
     enabled: false,
-    clientId: '',
-    clientSecret: '',
-    paymentMethods: {
-      creditCard: {
-        enabled: true,
-        installments: 12
-      },
-      debitCard: {
-        enabled: true
-      },
-      pix: {
-        enabled: true
-      },
-      boleto: {
-        enabled: false
-      }
-    }
+    paycoApiKey: '',
+    paycoClientId: '',
+    paymentMethods: []
   });
   const [showSecret, setShowSecret] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
-    // Inicializar Nexo
-    initNexo().catch(err => {
-      console.error('Erro ao inicializar Nexo:', err);
-    });
+    const initializeApp = async () => {
+      try {
+        // Inicializar Nexo
+        await initNexo();
 
-    loadConfig(storeId);
-  }, [storeId]);
+        // Obter storeId do ACTION_AUTH_SESSION_TOKEN
+        let id = storeId;
+        if (!id) {
+          id = await getStoreId();
+          setStoreId(id);
+        }
+
+        if (id) {
+          await loadConfig(id);
+        } else {
+          setMessage({
+            type: 'danger',
+            text: 'Não foi possível obter o ID da loja.'
+          });
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Erro ao inicializar:', err);
+        setMessage({
+          type: 'danger',
+          text: 'Erro ao inicializar aplicação.'
+        });
+        setLoading(false);
+      }
+    };
+
+    initializeApp();
+  }, []);
 
   const loadConfig = async (id) => {
     try {
-      const response = await axios.get(`/api/payment-provider/${id}`);
-      if (response.data.settings) {
+      const data = await getStoreConfig(id);
+
+      // Armazenar informações da store
+      setStoreInfo(data.storeInfo);
+
+      // Popular configurações do gateway
+      if (data.gatewayConfig) {
         setConfig({
-          enabled: response.data.settings.enabled || false,
-          clientId: response.data.settings.clientId || '',
-          clientSecret: response.data.settings.clientSecret || '',
-          paymentMethods: response.data.settings.paymentMethods || config.paymentMethods
+          enabled: data.gatewayConfig.enabled || false,
+          paycoApiKey: data.gatewayConfig.paycoApiKey || '',
+          paycoClientId: data.gatewayConfig.paycoClientId || '',
+          paymentMethods: data.gatewayConfig.paymentMethods || []
         });
       }
     } catch (error) {
@@ -80,7 +99,10 @@ function ConfigPage() {
     setMessage({ type: '', text: '' });
 
     try {
-      await axios.put(`/api/payment-provider/${storeId}/settings`, config);
+      await updateStoreConfig(storeId, {
+        gatewayConfig: config
+      });
+
       setMessage({
         type: 'success',
         text: 'Configurações salvas com sucesso! Seu gateway está ativo.'
@@ -99,31 +121,33 @@ function ConfigPage() {
     }
   };
 
-  const updatePaymentMethod = (method, field, value) => {
+  const togglePaymentMethod = (method) => {
+    const methods = config.paymentMethods.includes(method)
+      ? config.paymentMethods.filter(m => m !== method)
+      : [...config.paymentMethods, method];
+
     setConfig({
       ...config,
-      paymentMethods: {
-        ...config.paymentMethods,
-        [method]: {
-          ...config.paymentMethods[method],
-          [field]: value
-        }
-      }
+      paymentMethods: methods
     });
   };
 
-  const installmentOptions = [
-    { label: '1x sem juros', value: '1' },
-    { label: '2x sem juros', value: '2' },
-    { label: '3x sem juros', value: '3' },
-    { label: '6x sem juros', value: '6' },
-    { label: '12x sem juros', value: '12' }
-  ];
+  const isPaymentMethodEnabled = (method) => {
+    return config.paymentMethods.includes(method);
+  };
 
   if (loading) {
     return (
       <Box padding="4" display="flex" justifyContent="center" alignItems="center">
         <Text>Carregando configurações...</Text>
+      </Box>
+    );
+  }
+
+  if (!storeId) {
+    return (
+      <Box padding="4" display="flex" justifyContent="center" alignItems="center">
+        <Alert appearance="danger" title="Erro: ID da loja não encontrado" />
       </Box>
     );
   }
@@ -151,23 +175,23 @@ function ConfigPage() {
         <Card.Body>
           <Box display="flex" flexDirection="column" gap="4">
             <Box>
-              <Label>Client ID</Label>
+              <Label>Payco Client ID</Label>
               <Input
                 type="text"
-                value={config.clientId}
-                onChange={(e) => setConfig({ ...config, clientId: e.target.value })}
+                value={config.paycoClientId}
+                onChange={(e) => setConfig({ ...config, paycoClientId: e.target.value })}
                 placeholder="Digite seu Client ID"
               />
             </Box>
 
             <Box>
-              <Label>Client Secret</Label>
+              <Label>Payco API Key</Label>
               <Box display="flex" gap="2">
                 <Input
                   type={showSecret ? 'text' : 'password'}
-                  value={config.clientSecret}
-                  onChange={(e) => setConfig({ ...config, clientSecret: e.target.value })}
-                  placeholder="Digite seu Client Secret"
+                  value={config.paycoApiKey}
+                  onChange={(e) => setConfig({ ...config, paycoApiKey: e.target.value })}
+                  placeholder="Digite sua API Key"
                 />
                 <Button
                   appearance="default"
@@ -219,31 +243,18 @@ function ConfigPage() {
               {/* Cartão de Crédito */}
               <Card>
                 <Card.Body>
-                  <Box display="flex" flexDirection="column" gap="3">
-                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                      <Box>
-                        <Title as="h4">💳 Cartão de Crédito</Title>
-                        <Text fontSize="caption" color="neutral-textLow">
-                          Aceite pagamentos parcelados em até 12x
-                        </Text>
-                      </Box>
-                      <Checkbox
-                        checked={config.paymentMethods.creditCard.enabled}
-                        onChange={(e) => updatePaymentMethod('creditCard', 'enabled', e.target.checked)}
-                        label="Ativo"
-                      />
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Box>
+                      <Title as="h4">💳 Cartão de Crédito</Title>
+                      <Text fontSize="caption" color="neutral-textLow">
+                        Aceite pagamentos parcelados em até 12x
+                      </Text>
                     </Box>
-
-                    {config.paymentMethods.creditCard.enabled && (
-                      <Box>
-                        <Label>Número máximo de parcelas</Label>
-                        <Select
-                          value={String(config.paymentMethods.creditCard.installments)}
-                          onChange={(e) => updatePaymentMethod('creditCard', 'installments', parseInt(e.target.value))}
-                          options={installmentOptions}
-                        />
-                      </Box>
-                    )}
+                    <Checkbox
+                      checked={isPaymentMethodEnabled('credit_card')}
+                      onChange={() => togglePaymentMethod('credit_card')}
+                      label="Ativo"
+                    />
                   </Box>
                 </Card.Body>
               </Card>
@@ -259,27 +270,8 @@ function ConfigPage() {
                       </Text>
                     </Box>
                     <Checkbox
-                      checked={config.paymentMethods.pix.enabled}
-                      onChange={(e) => updatePaymentMethod('pix', 'enabled', e.target.checked)}
-                      label="Ativo"
-                    />
-                  </Box>
-                </Card.Body>
-              </Card>
-
-              {/* Cartão de Débito */}
-              <Card>
-                <Card.Body>
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Box>
-                      <Title as="h4">💳 Cartão de Débito</Title>
-                      <Text fontSize="caption" color="neutral-textLow">
-                        Pagamento à vista com aprovação instantânea
-                      </Text>
-                    </Box>
-                    <Checkbox
-                      checked={config.paymentMethods.debitCard.enabled}
-                      onChange={(e) => updatePaymentMethod('debitCard', 'enabled', e.target.checked)}
+                      checked={isPaymentMethodEnabled('pix')}
+                      onChange={() => togglePaymentMethod('pix')}
                       label="Ativo"
                     />
                   </Box>
@@ -297,8 +289,8 @@ function ConfigPage() {
                       </Text>
                     </Box>
                     <Checkbox
-                      checked={config.paymentMethods.boleto.enabled}
-                      onChange={(e) => updatePaymentMethod('boleto', 'enabled', e.target.checked)}
+                      checked={isPaymentMethodEnabled('boleto')}
+                      onChange={() => togglePaymentMethod('boleto')}
                       label="Ativo"
                     />
                   </Box>
@@ -338,6 +330,16 @@ function ConfigPage() {
               <Text>
                 <strong>ID da Loja:</strong> {storeId}
               </Text>
+              {storeInfo && (
+                <>
+                  <Text>
+                    <strong>Nome da Loja:</strong> {storeInfo.name || 'N/A'}
+                  </Text>
+                  <Text>
+                    <strong>URL:</strong> {storeInfo.url || 'N/A'}
+                  </Text>
+                </>
+              )}
               <Text fontSize="caption" color="neutral-textLow">
                 Para suporte, acesse: payco.com.br/suporte
               </Text>
