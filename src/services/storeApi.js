@@ -26,7 +26,7 @@ export const getStoreConfig = async (storeId) => {
 export const updateStoreConfig = async (storeId, config) => {
   try {
     const response = await axios.post(
-      `${API_BASE_URL}/store/${storeId}/config`,
+      `${API_BASE_URL}/auth/store/${storeId}/config`,
       {
         paycoApiKey: config.gatewayConfig.paycoApiKey,
         paycoClientId: config.gatewayConfig.paycoClientId,
