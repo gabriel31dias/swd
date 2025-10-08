@@ -122,8 +122,6 @@ function ConfigPage() {
         text: 'Configurações salvas com sucesso!'
       });
 
-      // Mostrar toast usando Nexo
-      showToast('Configurações salvas com sucesso!', 'success');
     } catch (error) {
       console.error('Erro ao salvar:', error);
       const errorMsg = error.response?.data?.message || 'Erro ao salvar configurações. Tente novamente.';
