@@ -1,4 +1,5 @@
 import nexo from '@tiendanube/nexo';
+import { connect, iAmReady } from '@tiendanube/nexo/helpers';
 
 let nexoClient = null;
 let isConnected = false;
@@ -10,11 +11,11 @@ export const initNexo = async () => {
       log: true
     });
 
-    await nexoClient.connect();
+    await connect(nexoClient);
     isConnected = true;
 
     // Notificar que o app está pronto
-    nexoClient.iAmReady();
+    iAmReady(nexoClient);
 
     console.log('Nexo conectado com sucesso');
     return nexoClient;
