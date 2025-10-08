@@ -56,3 +56,18 @@ export const showToast = (message, type = 'success') => {
     });
   }
 };
+
+// Função para obter informações da loja
+export const getStoreInfo = async () => {
+  if (!nexoClient) {
+    throw new Error('Nexo client não está inicializado');
+  }
+
+  try {
+    const storeInfo = await nexoClient.getStoreInfo();
+    return storeInfo;
+  } catch (error) {
+    console.error('Erro ao obter informações da loja:', error);
+    throw error;
+  }
+};

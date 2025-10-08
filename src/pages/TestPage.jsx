@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Box, Card, Title, Text, Button } from '@nimbus-ds/components';
 import { CheckCircleIcon } from '@nimbus-ds/icons';
-import { initNexo } from '../services/nexoClient';
+import { initNexo, getStoreInfo } from '../services/nexoClient';
 
 function TestPage() {
   const navigate = useNavigate();
@@ -13,6 +13,27 @@ function TestPage() {
       console.error('Erro ao inicializar Nexo:', err);
     });
   }, []);
+
+  const handleShowStoreInfo = async () => {
+    try {
+      const storeInfo = await getStoreInfo();
+
+      const infoMessage = `
+📊 Informações da Loja:
+
+🆔 ID: ${storeInfo.id}
+🏪 Nome: ${storeInfo.name}
+🌐 URL: ${storeInfo.url}
+🌍 País: ${storeInfo.country}
+🗣️ Idioma: ${storeInfo.language}
+💰 Moeda: ${storeInfo.currency}
+      `.trim();
+
+      alert(infoMessage);
+    } catch (error) {
+      alert('Erro ao obter informações da loja: ' + error.message);
+    }
+  };
 
   return (
     <Box
@@ -50,6 +71,20 @@ function TestPage() {
               <CheckCircleIcon color="success-textHigh" />
               <Text>Navegação: <strong>Funcionando</strong></Text>
             </Box>
+          </Box>
+        </Card.Body>
+      </Card>
+
+      <Card>
+        <Card.Header>
+          <Title as="h3">Nexo - Informações da Loja</Title>
+        </Card.Header>
+        <Card.Body>
+          <Box display="flex" flexDirection="column" gap="2">
+            <Text>Clique no botão abaixo para ver as informações da loja usando ACTION_STORE_INFO do Nexo:</Text>
+            <Button onClick={handleShowStoreInfo}>
+              Ver Informações da Loja
+            </Button>
           </Box>
         </Card.Body>
       </Card>
