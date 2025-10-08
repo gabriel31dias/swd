@@ -186,18 +186,20 @@ function ConfigPage() {
 
             <Box>
               <Label>Payco API Key</Label>
-              <Box display="flex" gap="2">
-                <Input
-                  type={showSecret ? 'text' : 'password'}
-                  value={config.paycoApiKey}
-                  onChange={(e) => setConfig({ ...config, paycoApiKey: e.target.value })}
-                  placeholder="Digite sua API Key"
-                />
+              <Box display="flex" gap="2" alignItems="flex-start">
+                <Box flex="1">
+                  <Input
+                    type={showSecret ? 'text' : 'password'}
+                    value={config.paycoApiKey}
+                    onChange={(e) => setConfig({ ...config, paycoApiKey: e.target.value })}
+                    placeholder="Digite sua API Key"
+                  />
+                </Box>
                 <Button
-                  appearance="default"
+                  appearance="transparent"
                   onClick={() => setShowSecret(!showSecret)}
                 >
-                  {showSecret ? '🙈' : '👁️'}
+                  {showSecret ? 'Ocultar' : 'Mostrar'}
                 </Button>
               </Box>
               <Text fontSize="caption" color="neutral-textLow">
@@ -300,17 +302,18 @@ function ConfigPage() {
             </Box>
           </Card.Body>
           <Card.Footer>
-            <Box display="flex" justifyContent="flex-end" gap="2">
+            <Box display="flex" justifyContent="flex-end" gap="3">
               <Button
-                appearance="default"
+                appearance="transparent"
                 onClick={() => window.location.reload()}
+                disabled={saving}
               >
                 Cancelar
               </Button>
               <Button
                 appearance="primary"
                 onClick={handleSave}
-                disabled={saving}
+                disabled={saving || !config.paycoClientId || !config.paycoApiKey}
               >
                 {saving ? 'Salvando...' : 'Salvar Configurações'}
               </Button>
