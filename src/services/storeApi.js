@@ -25,12 +25,15 @@ export const getStoreConfig = async (storeId) => {
  */
 export const updateStoreConfig = async (storeId, config) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/store/${storeId}/config`, {
-      paycoApiKey: config.gatewayConfig.paycoApiKey,
-      paycoClientId: config.gatewayConfig.paycoClientId,
-      enabled: config.gatewayConfig.enabled,
-      paymentMethods: config.gatewayConfig.paymentMethods
-    });
+    const response = await axios.post(
+      `https://swd-olive.vercel.app/api/payment-provider/${storeId}/settings`,
+      {
+        paycoApiKey: config.gatewayConfig.paycoApiKey,
+        paycoClientId: config.gatewayConfig.paycoClientId,
+        enabled: config.gatewayConfig.enabled,
+        paymentMethods: config.gatewayConfig.paymentMethods
+      }
+    );
     return response.data;
   } catch (error) {
     console.error('Erro ao atualizar configurações da store:', error);
